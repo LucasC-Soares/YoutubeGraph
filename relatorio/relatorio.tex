@@ -1,0 +1,228 @@
+\documentclass[sigconf]{webmedia}
+% Para a submissão duplo-cega use:  \documentclass[sigconf,anonymous,review]{webmedia}
+% (removido \usepackage{lmodern}: o próprio template proíbe o pacote)
+
+\AtBeginDocument{%
+  \providecommand\BibTeX{{%
+    \normalfont B\kern-0.5em{\scshape i\kern-0.25em b}\kern-0.8em\TeX}}}
+
+\settopmatter{printacmref=false, printfolios=false}
+
+%% Evento
+\setevent{webmedia}
+\proceedingsDetails[WebMedia’2026]{Proceedings of the Brazilian Symposium on Multimedia and the Web}{2026}{Lavras/MG, Brazil}
+\ISSN{2966-2753}
+
+%% Marcador de pendências (apague todos antes de entregar)
+\newcommand{\TODO}[1]{\textbf{[PREENCHER: #1]}}
+%% Inclui a tabela gerada pelos scripts; se ainda não existir, mostra um aviso
+\newsavebox{\tabbox}
+\newcommand{\tabela}[2]{%
+  \sbox{\tabbox}{\InputIfFileExists{#1}{}{\TODO{rodar #2}}}%
+  \ifdim\wd\tabbox>\linewidth
+    \resizebox{\linewidth}{!}{\usebox{\tabbox}}%
+  \else
+    \hbox to \linewidth{\hfil\usebox{\tabbox}\hfil}%
+  \fi}
+
+\begin{document}
+
+\title[Análise Estrutural do Grafo com-Youtube]{Análise Estrutural e Algorítmica da Rede Social do YouTube}
+
+\author{Nome Completo do Autor} % PREENCHER
+\email{autor@instituicao.br} % PREENCHER
+\affiliation{%
+  \institution{Instituição} % PREENCHER
+  \city{Cidade} % PREENCHER
+  \country{Brasil}}
+
+\renewcommand{\shortauthors}{Sobrenome} % PREENCHER
+
+\begin{abstract}
+Este trabalho analisa a rede social \texttt{com-Youtube}, disponibilizada pelo projeto SNAP, por meio de (i) medidas estruturais clássicas, (ii) algoritmos de grafos da disciplina, comparando complexidade teórica e tempo observado com intervalos de confiança, e (iii) propriedades de redes complexas: efeito \emph{small-world}, lei de potência na distribuição de graus e robustez a falhas aleatórias e ataques direcionados. \TODO{Resumo dos principais resultados em 2--3 frases, após rodar os scripts.}
+\end{abstract}
+
+\keywords{análise de redes, grafos, small-world, lei de potência, robustez, algoritmos de grafos}
+
+\maketitle
+
+%% =====================================================================
+\section{Introdução}
+Redes sociais \emph{online} apresentam estrutura não trivial, com poucos vértices muito conectados e agrupamento local elevado. Neste trabalho estudamos a rede de amizades do YouTube (\texttt{com-Youtube}) \cite{yang2015defining,snapnets}. \TODO{Motivação, contribuição e organização do texto (um parágrafo cada).}
+
+%% =====================================================================
+\section{Determinação do Grafo}
+\label{sec:grafo}
+\TODO{Descrever como o grafo atribuído foi determinado a partir do número de matrícula (cálculo do autor). Informar o resultado: o grafo completo ou o subgrafo/instância resultante.}
+
+O conjunto de dados \texttt{com-Youtube} é uma rede de amizades não direcionada e não ponderada; o SNAP disponibiliza apenas a maior componente conexa \cite{snapnets}. Segundo a página do conjunto, a rede possui 1\,134\,890 vértices e 2\,987\,624 arestas. Os valores efetivamente obtidos após o nosso tratamento estão na Tabela~\ref{tab:estrutural}.
+
+%% =====================================================================
+\section{Responsabilidade pelo Tratamento dos Dados}
+\label{sec:dados}
+\paragraph{Origem e licença.} Os dados são públicos e foram obtidos diretamente do SNAP (arquivo \texttt{com-youtube.ungraph.txt.gz}). Os identificadores dos usuários já são anonimizados na origem e nenhuma tentativa de reidentificação foi feita.
+
+\paragraph{Limpeza.} O tratamento foi feito de forma automática e reprodutível (pacote \texttt{comum}): (1) comentários do cabeçalho ignorados; (2) laços (arestas $u=u$) removidos; (3) arestas duplicadas e em sentidos opostos unificadas, tratando o grafo como simples e não direcionado; (4) identificadores originais, não contíguos, mapeados para $0,\dots,n-1$ (o mapeamento é preservado); (5) armazenamento em lista de adjacência compacta (CSR). O arquivo tinha 2\,987\,624 linhas; nenhum laço e nenhuma aresta duplicada foi encontrado, resultando em 1\,134\,890 vértices e 2\,987\,624 arestas. Nenhuma aresta ou vértice válido foi descartado ou alterado.
+
+\paragraph{Decisões metodológicas.}
+(a) Medidas dependentes de caminhos (diâmetro, raio, caminho médio, robustez) são calculadas na maior componente conexa. (b) Para medidas de custo proibitivo em todos os pares (diâmetro, raio, caminho médio) usam-se BFS a partir de fontes amostradas; o diâmetro é um \emph{limite inferior} e o raio um \emph{limite superior}. (c) A clusterização média e o número de triângulos da Parte~I foram calculados de forma exata com o igraph; no teste de \emph{small-world}, que usa a implementação própria, a clusterização foi estimada em uma amostra de 20\,000 vértices (IC95\% na Tabela~\ref{tab:sw}). (d) Sementes aleatórias fixas (\texttt{GRAPH\_SEED}=42) garantem reprodutibilidade. (e) Os algoritmos com pesos (Dijkstra, Bellman-Ford, Floyd-Warshall, Kruskal, Prim) foram avaliados com pesos inteiros aleatórios em $[1,10]$, pois o grafo é não ponderado.
+
+\paragraph{Ferramentas e código.} Python com NumPy, NetworkX \cite{hagberg2008} (visualização e validação cruzada) e, opcionalmente, igraph \cite{igraph} (contagem exata de triângulos). Os algoritmos da Parte~II e as medidas de \emph{small-world} foram implementados do zero e validados contra o NetworkX em subgrafos (todas as comparações concordaram). \TODO{Link do repositório / material suplementar.}
+
+%% =====================================================================
+\section{Parte I --- Análise Estrutural}
+\label{sec:parte1}
+A Tabela~\ref{tab:estrutural} reúne todas as medidas exigidas; a Tabela~\ref{tab:computado} indica quais foram calculadas de forma exata, estimada ou não calculadas, com justificativa. A Figura~\ref{fig:graus} mostra a distribuição de graus e a Figura~\ref{fig:vis} uma visualização reduzida.
+
+\begin{table}
+  \caption{Medidas estruturais do grafo.}
+  \label{tab:estrutural}
+  \small
+  \tabela{../parte1/resultados/tab_estrutural.tex}{python -m parte1}
+\end{table}
+
+\begin{table}
+  \caption{Tamanho das maiores componentes conexas.}
+  \label{tab:componentes}
+  \small
+  \tabela{../parte1/resultados/tab_componentes.tex}{python -m parte1}
+\end{table}
+
+\begin{table*}
+  \caption{Medidas computadas e forma de obtenção.}
+  \label{tab:computado}
+  \small
+  \tabela{../parte1/resultados/tab_computado.tex}{python -m parte1}
+\end{table*}
+
+\begin{figure}[h]
+  \centering
+  \IfFileExists{../parte1/resultados/fig/graus.pdf}{\includegraphics[width=\linewidth]{../parte1/resultados/fig/graus.pdf}}{\TODO{figura graus.pdf}}
+  \caption{Distribuição de graus $P(k)$ em escala log-log.}
+  \Description{Gráfico log-log da fração de vértices em função do grau.}
+  \label{fig:graus}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \IfFileExists{../parte1/resultados/fig/visualizacao.pdf}{\includegraphics[width=0.8\linewidth]{../parte1/resultados/fig/visualizacao.pdf}}{\TODO{figura visualizacao.pdf}}
+  \caption{Subgrafo reduzido ao redor do vértice de maior grau; tamanho e cor dos nós indicam o grau.}
+  \Description{Visualização de um subgrafo com poucos hubs conectados a muitos vértices de grau baixo.}
+  \label{fig:vis}
+\end{figure}
+
+\TODO{Discutir: densidade muito baixa, grau médio vs.\ máximo (hubs), número de componentes, diâmetro/raio vs.\ caminho médio, clusterização média e triângulos.}
+
+%% =====================================================================
+\section{Parte II --- Algoritmos da Disciplina}
+\label{sec:parte2}
+Foram implementados BFS, DFS, verificação de eulerianidade, Dijkstra, Bellman-Ford, Floyd-Warshall, Tarjan (pontes e pontos de articulação) e árvore geradora mínima (Kruskal com união-busca e Prim) \cite{cormen2009,tarjan1972}. Em grafo não direcionado, as componentes fortemente conexas coincidem com as conexas, por isso Tarjan é aplicado a pontes e articulações.
+
+\paragraph{Aplicabilidade.} O grafo é não ponderado e sem arestas de peso negativo: Dijkstra e Bellman-Ford equivalem à BFS e Floyd-Warshall é inviável no grafo inteiro ($O(V^3)$). Mesmo assim, para a comparação teórica$\times$observada, foram executados sobre subgrafos com pesos aleatórios (seção~\ref{sec:dados}). \TODO{Resultado da verificação de eulerianidade, número de pontes e de pontos de articulação no grafo completo (\texttt{python -m parte2 --completo}).}
+
+\paragraph{Medição de tempo.} Cada algoritmo foi executado $R$ vezes sobre subgrafos induzidos diferentes (bolas BFS de $V$ vértices em torno de fontes aleatórias) e, quando necessário, com fonte aleatória. Reportam-se média $\bar{x}$, desvio padrão $s$ e IC95\%:
+\begin{equation}
+  \bar{x}\pm z_{\alpha/2}\frac{s}{\sqrt{R}}\ (R\ge 30),\qquad
+  \bar{x}\pm t_{\alpha/2,R-1}\frac{s}{\sqrt{R}}\ (R<30),
+\end{equation}
+com $z_{0{,}025}=1{,}96$. Foram usadas $R=30$ repetições por tamanho, logo a distribuição normal (Z) em todas as linhas da Tabela~\ref{tab:tempos}.
+
+\begin{table}
+  \caption{Complexidade teórica e expoente observado $b$ do ajuste $t\propto f(V,E)^b$ (quanto mais próximo de 1, maior a aderência).}
+  \label{tab:complexidade}
+  \small
+  \tabela{../parte2/resultados/tab_complexidade.tex}{python -m parte2}
+\end{table}
+
+\begin{table*}
+  \caption{Tempos de execução observados (média, desvio padrão e IC95\%).}
+  \label{tab:tempos}
+  \small
+  \tabela{../parte2/resultados/tab_tempos.tex}{python -m parte2}
+\end{table*}
+
+\begin{figure}[h]
+  \centering
+  \IfFileExists{../parte2/resultados/fig/tempos.pdf}{\includegraphics[width=\linewidth]{../parte2/resultados/fig/tempos.pdf}}{\TODO{figura tempos.pdf}}
+  \caption{Tempo médio com IC95\% em função do tamanho do subgrafo (log-log).}
+  \Description{Curvas de tempo por algoritmo em escala log-log, crescentes com o número de vértices.}
+  \label{fig:tempos}
+\end{figure}
+
+\TODO{Discutir: algoritmos lineares x $O((V+E)\log V)$ x $O(VE)$ x $O(V^3)$; onde o tempo observado difere do teórico (por exemplo, Bellman-Ford encerra cedo quando uma passada não relaxa nenhuma aresta; efeitos de constantes e de \emph{cache}; Python puro).}
+
+%% =====================================================================
+\section{Parte III --- Análise Estrutural Avançada}
+\label{sec:parte3}
+
+\subsection{Propriedade \emph{small-world}}
+Um grafo é \emph{small-world} se $L(G)\approx L_{rand}$ e $C(G)\gg C_{rand}$, onde o grafo aleatório de referência tem o mesmo número de vértices e o mesmo grau médio. Usamos um $G(n,m)$ de Erdős--Rényi \cite{erdos1959} gerado e medido pelo mesmo código, além dos valores teóricos $L_{rand}\approx\ln n/\ln\langle k\rangle$ e $C_{rand}\approx\langle k\rangle/n$, e o índice $\sigma=(C/C_{rand})/(L/L_{rand})$ \cite{watts1998}. A implementação é própria (sem bibliotecas de cálculo de \emph{small-world}).
+
+\begin{table}
+  \caption{Teste de \emph{small-world} na maior componente.}
+  \label{tab:sw}
+  \small
+  \tabela{../parte3/resultados/tab_smallworld.tex}{python -m parte3.smallworld}
+\end{table}
+
+\TODO{Concluir se há indício de small-world. Atenção: em redes com hubs $L$ costuma ficar \emph{menor} que $L_{rand}$ (razão $<1$); explique isso. Implicação prática: informação/influência se propaga em poucos saltos, mas há agrupamento local; relacionar com o contexto de rede social.}
+
+\subsection{Lei de potência na distribuição de graus}
+Verificamos se $P(k)\sim k^{-\gamma}$ com $\gamma>1$ por (i) gráficos log-log de $P(k)$ e da CCDF, (ii) regressão linear de $\log P(K\ge k)\times\log k$ e (iii) estimador de máxima verossimilhança de $\gamma$ com $k_{min}$ escolhido por mínima distância de Kolmogorov--Smirnov \cite{clauset2009}. Usamos a aproximação contínua com correção de $1/2$ para dados discretos; \textbf{não} realizamos o teste de bondade de ajuste por \emph{bootstrap} nem comparação com outras distribuições de cauda pesada, o que limita a conclusão a \emph{indícios}.
+
+\begin{table}
+  \caption{Ajuste de lei de potência.}
+  \label{tab:pl}
+  \small
+  \tabela{../parte3/resultados/tab_potencia.tex}{python -m parte3.potencia}
+\end{table}
+
+\begin{figure}[h]
+  \centering
+  \IfFileExists{../parte3/resultados/fig/potencia.pdf}{\includegraphics[width=\linewidth]{../parte3/resultados/fig/potencia.pdf}}{\TODO{figura potencia.pdf}}
+  \caption{$P(k)$ e CCDF em escala log-log, com o ajuste por máxima verossimilhança.}
+  \Description{Dois gráficos log-log: distribuição de graus e CCDF com reta de ajuste.}
+  \label{fig:pl}
+\end{figure}
+
+\TODO{Interpretar $\gamma$ e $k_{min}$, a fração de vértices na cauda, e a existência de \emph{hubs}.}
+
+\subsection{Robustez}
+Seguindo o apêndice do enunciado, trabalhamos na maior componente conexa, com $r=\lceil 0{,}05\,n\rceil$ vértices removidos. As métricas são: (A) fração $S$ do grafo original na maior componente; (B) número de componentes; (C) caminho médio e limite inferior do diâmetro (BFS amostradas); (D) fração de nós isolados. Na remoção aleatória foram feitas $T=30$ repetições (média $\pm$ desvio, boxplots). No ataque direcionado removemos os $r$ vértices de maior centralidade de grau e de PageRank (ranking fixo, calculado uma vez). A betweenness exata é inviável neste porte, e o enunciado admite grau como alternativa.
+
+\begin{table*}
+  \caption{Robustez à remoção de 5\% dos vértices.}
+  \label{tab:rob}
+  \small
+  \tabela{../parte3/resultados/tab_robustez.tex}{python -m parte3.robustez}
+\end{table*}
+
+\begin{figure*}[h]
+  \centering
+  \IfFileExists{../parte3/resultados/fig/robustez.pdf}{\includegraphics[width=0.85\textwidth]{../parte3/resultados/fig/robustez.pdf}}{\TODO{figura robustez.pdf}}
+  \caption{Métricas após a remoção aleatória (boxplots, $T$ repetições) e após ataques por grau e PageRank (marcadores); linha tracejada = grafo original.}
+  \Description{Quatro painéis com boxplots das métricas A a D e marcadores dos ataques direcionados.}
+  \label{fig:rob}
+\end{figure*}
+
+\TODO{Interpretar conforme o apêndice: se $S_{rand}\gg S_{cent}$ e/ou $c_{cent}\gg c_{rand}$, a rede é vulnerável a ataques direcionados (padrão de redes com hubs); se ambos se degradam de forma semelhante, não há nós tão críticos.}
+
+\subsection{Descoberta mais interessante}
+\TODO{Obrigatório (item 4): a descoberta mais interessante sobre o grafo, em 1--2 parágrafos, apoiada em números das seções anteriores.}
+
+\subsection{Aproximação a modelos clássicos (extra)}
+\TODO{Opcional (item 5): comparar com Erdős--Rényi (distribuição de graus de Poisson e $C$ muito baixo), Watts--Strogatz \cite{watts1998} (alta clusterização, graus homogêneos) e Barabási--Albert \cite{barabasi1999} (cauda de lei de potência). Use $\gamma$, $C$ e $L$ já calculados para justificar.}
+
+%% =====================================================================
+\section{Conclusão}
+\TODO{Síntese dos achados, limitações (amostragem, aproximações, ausência de teste de bondade de ajuste da lei de potência) e trabalhos futuros.}
+
+\begin{acks}
+\TODO{Agradecimentos, se houver.}
+\end{acks}
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{refs}
+
+\end{document}
+\endinput

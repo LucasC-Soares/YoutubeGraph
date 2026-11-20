@@ -1,0 +1,85 @@
+{
+  "limpeza": {
+    "linhas_arquivo": 2987624,
+    "lacos_removidos": 0,
+    "duplicatas_removidas": 0,
+    "n_vertices": 1134890,
+    "n_arestas": 2987624
+  },
+  "medidas": {
+    "Número de vértices": {
+      "valor": 1134890,
+      "como": "exato"
+    },
+    "Número de arestas": {
+      "valor": 2987624,
+      "como": "exato"
+    },
+    "Grau mínimo": {
+      "valor": 1,
+      "como": "exato"
+    },
+    "Grau máximo": {
+      "valor": 28754,
+      "como": "exato"
+    },
+    "Grau médio": {
+      "valor": 5.265045951590022,
+      "como": "exato"
+    },
+    "Mediana do grau": {
+      "valor": 1.0,
+      "como": "exato"
+    },
+    "Distribuição de graus": {
+      "valor": "978 valores distintos de grau",
+      "como": "exato (CSV + figura)"
+    },
+    "Densidade": {
+      "valor": 4.639260713241579e-06,
+      "como": "exato"
+    },
+    "Número de componentes conexas": {
+      "valor": 1,
+      "como": "exato"
+    },
+    "Tamanho de cada componente": {
+      "valor": "maior = 1134890 (100.0000% dos vértices)",
+      "como": "exato (tab. componentes)"
+    },
+    "Diâmetro": {
+      "valor": 24,
+      "como": "estimado (limite inferior; 300 BFS) na maior componente"
+    },
+    "Raio": {
+      "valor": 12,
+      "como": "estimado (limite superior; 250 BFS) na maior componente"
+    },
+    "Comprimento médio dos caminhos": {
+      "valor": 5.355657918968287,
+      "como": "estimado (200 fontes, IC95% ±0.1155) na maior componente"
+    },
+    "Coeficiente de clusterização médio": {
+      "valor": 0.08080227776190227,
+      "como": "exato (igraph)"
+    },
+    "Número de triângulos": {
+      "valor": 3056386,
+      "como": "exato (igraph)"
+    },
+    "Visualização do grafo": {
+      "valor": "subgrafo de 200 vértices",
+      "como": "versão reduzida"
+    }
+  },
+  "componentes_top10": [
+    1134890
+  ],
+  "diametro_lb": 24,
+  "raio_ub": 12,
+  "caminho_medio": {
+    "media": 5.355657918968287,
+    "desvio": 0.8332917914801089,
+    "ic95": 0.11548622897208835
+  }
+}
