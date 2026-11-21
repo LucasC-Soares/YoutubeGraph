@@ -57,7 +57,11 @@ O texto segue esta ordem: a Seção~\ref{sec:grafo} descreve o grafo, a Seção~
 %% =====================================================================
 \section{Determinação do Grafo}
 \label{sec:grafo}
-\TODO{Descrever como o grafo atribuído foi determinado a partir do número de matrícula (cálculo do autor). Informar o resultado: o grafo completo ou o subgrafo/instância resultante.}
+O grafo a ser analisado por cada aluno é determinado a partir do número de matrícula $M$, pela fórmula
+\begin{equation}
+  g = \bigl(S(M)\cdot(U(M)+1)\bigr) \bmod 129,
+\end{equation}
+em que $S(M)$ é a soma dos dígitos de $M$ e $U(M)$ é o número formado pelos dois últimos dígitos de $M$. Para a matrícula $224215940$ temos $S=2+2+4+2+1+5+9+4+0=29$ e $U=40$, logo $g=(29\cdot 41)\bmod 129=1189\bmod 129=28$. O índice 28 corresponde ao grafo \href{https://snap.stanford.edu/data/com-Youtube.html}{\texttt{com-Youtube}}, analisado neste trabalho.
 
 O conjunto de dados \texttt{com-Youtube} é uma rede de amizades não direcionada e não ponderada; o SNAP disponibiliza apenas a maior componente conexa \cite{snapnets}. Segundo a página do conjunto, a rede possui 1\,134\,890 vértices e 2\,987\,624 arestas. Os valores efetivamente obtidos após o nosso tratamento estão na Tabela~\ref{tab:estrutural}.
 
@@ -71,10 +75,10 @@ O conjunto de dados \texttt{com-Youtube} é uma rede de amizades não direcionad
 \paragraph{Decisões metodológicas.}
 (a) Medidas dependentes de caminhos (diâmetro, raio, caminho médio, robustez) são calculadas na maior componente conexa. (b) Para medidas de custo proibitivo em todos os pares (diâmetro, raio, caminho médio) usam-se BFS a partir de fontes amostradas; o diâmetro é um \emph{limite inferior} e o raio um \emph{limite superior}. (c) A clusterização média e o número de triângulos da Parte~I foram calculados de forma exata com o igraph; no teste de \emph{small-world}, que usa a implementação própria, a clusterização foi estimada em uma amostra de 20\,000 vértices ($C\approx 0{,}0796\pm 0{,}0031$, IC95\%, contra o valor exato 0,0808 da Parte~I). (d) Sementes aleatórias fixas (\texttt{GRAPH\_SEED}=42) garantem reprodutibilidade. (e) Os algoritmos com pesos (Dijkstra, Bellman-Ford, Floyd-Warshall, Kruskal, Prim) foram avaliados com pesos inteiros aleatórios em $[1,10]$, pois o grafo é não ponderado.
 
-\paragraph{Ferramentas e código.} Python com NumPy, NetworkX \cite{hagberg2008} (visualização e validação cruzada) e, opcionalmente, igraph \cite{igraph} (contagem exata de triângulos). Os algoritmos da Parte~II e as medidas de \emph{small-world} foram implementados do zero e validados contra o NetworkX em subgrafos (todas as comparações concordaram). \TODO{Link do repositório / material suplementar.}
+\paragraph{Ferramentas e código.} Python com NumPy, NetworkX \cite{hagberg2008} (visualização e validação cruzada) e, opcionalmente, igraph \cite{igraph} (contagem exata de triângulos). Os algoritmos da Parte~II e as medidas de \emph{small-world} foram implementados do zero e validados contra o NetworkX em subgrafos (todas as comparações concordaram). Acessando o \href{https://github.com/LucasC-Soares/YoutubeGraph}{link para o repositório} é possível encontrar os scripts e resultados obtidos.
 
 %% =====================================================================
-\section{Parte I --- Análise Estrutural}
+\section{Parte I - Análise Estrutural}
 \label{sec:parte1}
 A Tabela~\ref{tab:estrutural} reúne todas as medidas exigidas; a Tabela~\ref{tab:computado} indica quais foram calculadas de forma exata, estimada ou não calculadas, com justificativa. A Figura~\ref{fig:graus} mostra a distribuição de graus e a Figura~\ref{fig:vis} uma visualização reduzida.
 
@@ -120,7 +124,7 @@ A densidade é de apenas $4{,}6\times10^{-6}$: o grafo é extremamente esparso. 
 O diâmetro (24) e o raio (12) são pequenos para mais de um milhão de vértices e o caminho médio é ainda menor ($5{,}36\pm0{,}12$): pares típicos ficam a cerca de cinco saltos, e os 24 saltos são casos extremos. Como $\mathrm{diam}\le 2\,\mathrm{raio}$ e o raio é no máximo 12, o diâmetro encontrado (24) é de fato exato. A clusterização média é 0,081, e há 3\,056\,386 triângulos: apesar da esparsidade, os amigos de um usuário têm probabilidade alta, em comparação com um grafo aleatório, de serem amigos entre si.
 
 %% =====================================================================
-\section{Parte II --- Algoritmos da Disciplina}
+\section{Parte II - Algoritmos da Disciplina}
 \label{sec:parte2}
 Foram implementados BFS, DFS, verificação de eulerianidade, Dijkstra, Bellman-Ford, Floyd-Warshall, Tarjan (pontes e pontos de articulação) e árvore geradora mínima (Kruskal com união-busca e Prim) \cite{cormen2009,tarjan1972}. Em grafo não direcionado, as componentes fortemente conexas coincidem com as conexas, por isso Tarjan é aplicado a pontes e articulações.
 
@@ -160,7 +164,7 @@ Os algoritmos de custo $O(V+E)$ (BFS, DFS, eulerianidade, Tarjan) apresentam exp
 Dois casos divergem. Bellman-Ford tem expoente 0,59, bem abaixo do $O(VE)$ teórico, porque a implementação encerra quando uma passada não relaxa nenhuma aresta; em grafos de diâmetro pequeno isso ocorre após poucas passadas, e o custo real se aproxima de $O(D\cdot E)$, onde $D$ é o número de passadas. Floyd-Warshall (0,92) foi medido só até $V=400$, faixa em que a sobrecarga fixa ainda pesa frente ao termo cúbico. Os desvios padrão relativos são maiores em Prim, Kruskal e DFS, o que sugere sensibilidade ao subgrafo sorteado.
 
 %% =====================================================================
-\section{Parte III --- Análise Estrutural Avançada}
+\section{Parte III - Análise Estrutural Avançada}
 \label{sec:parte3}
 
 \subsection{Propriedade \emph{small-world}}
@@ -220,7 +224,7 @@ O mais interessante é que uma mesma propriedade explica a força e a fragilidad
 
 Há ainda um efeito de composição: mais da metade dos usuários tem um único amigo e pendura-se em algum \emph{hub}. Por isso a remoção aleatória isola quase exatamente a fração prevista (2,7\%), enquanto o ataque aos poucos vértices centrais isola 43\% de uma vez.
 
-\subsection{Aproximação a modelos clássicos (extra)}
+\subsection{Aproximação a modelos clássicos}
 \emph{Erdős--Rényi}: com o mesmo grau médio, o grau seguiria uma Poisson de média 5,3, sem vértices de grau na casa de milhares, e $C\approx4{,}6\times10^{-6}$; o grafo real tem grau máximo 28\,754 e $C=0{,}081$, logo não se aproxima de ER. \emph{Watts--Strogatz}: reproduz $C$ alto e $L$ baixo, mas com graus homogêneos, o que contradiz a cauda pesada observada. \emph{Barabási--Albert} \cite{barabasi1999}: gera cauda de lei de potência e $L$ curto, mas com $\gamma=3$ e $C$ muito baixo; a rede real tem $\gamma\approx2{,}1$--$2{,}4$ e $C$ bem maior. O modelo mais próximo é, portanto, o de ligação preferencial, mas seria preciso um mecanismo adicional de fechamento de triângulos para explicar a clusterização.
 
 %% =====================================================================
@@ -230,7 +234,7 @@ A rede \texttt{com-Youtube} é esparsa, de mundo pequeno (caminho médio 5,4, di
 As principais limitações são: diâmetro, raio e caminho médio estimados por BFS amostradas; clusterização do teste de \emph{small-world} estimada em amostra; lei de potência sem teste de bondade de ajuste nem comparação com outras distribuições; e ataques com ranking fixo, sem recalcular a centralidade a cada remoção, nem betweenness. Como trabalhos futuros, propomos o teste por \emph{bootstrap}, o ataque adaptativo e a comparação com modelos geradores que incluam fechamento de triângulos.
 
 \begin{acks}
-\TODO{Agradecimentos, se houver.}
+Agradeço ao professor Bruno pela ótima proposta de Trabalho Prático e a chance que proporcionou para os seus alunos se desenvolverem durante a matéria. Foi uma ótima experiência para todos assistir às suas aulas e  desenvolver habilidades pertinentes à pesquisa científica durante os seminários.
 \end{acks}
 
 \bibliographystyle{ACM-Reference-Format}
