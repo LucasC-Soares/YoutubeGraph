@@ -1,6 +1,4 @@
 \documentclass[sigconf]{webmedia}
-% Para a submissão duplo-cega use:  \documentclass[sigconf,anonymous,review]{webmedia}
-% (removido \usepackage{lmodern}: o próprio template proíbe o pacote)
 
 \AtBeginDocument{%
   \providecommand\BibTeX{{%
@@ -13,7 +11,7 @@
 \proceedingsDetails[WebMedia’2026]{Proceedings of the Brazilian Symposium on Multimedia and the Web}{2026}{Lavras/MG, Brazil}
 \ISSN{2966-2753}
 
-%% Marcador de pendências (apague todos antes de entregar)
+%% Marcador de pendências
 \newcommand{\TODO}[1]{\textbf{[PREENCHER: #1]}}
 %% Inclui a tabela gerada pelos scripts; se ainda não existir, mostra um aviso
 \newsavebox{\tabbox}
@@ -29,14 +27,14 @@
 
 \title[Análise Estrutural do Grafo com-Youtube]{Análise Estrutural e Algorítmica da Rede Social do YouTube}
 
-\author{Lucas Costa Soares} % PREENCHER
-\email{lucas.srs@ufba.br} % PREENCHER
-\affiliation{%
-  \institution{Universidade Federal da Bahia - UFBA} % PREENCHER
-  \city{Salvador} % PREENCHER
+\author{Lucas Costa Soares}
+\email{lucas.srs@ufba.br}
+\affiliation{
+  \institution{Universidade Federal da Bahia - UFBA}
+  \city{Salvador}
   \country{Brasil}}
 
-\renewcommand{\shortauthors}{Soares} % PREENCHER
+\renewcommand{\shortauthors}{Soares}
 
 \begin{abstract}
 Este trabalho analisa a rede social \texttt{com-Youtube}, disponibilizada pelo projeto SNAP, por meio de (i) medidas estruturais clássicas, (ii) algoritmos de grafos da disciplina, comparando complexidade teórica e tempo observado com intervalos de confiança, e (iii) propriedades de redes complexas: efeito \emph{small-world}, lei de potência na distribuição de graus e robustez a falhas aleatórias e ataques direcionados. A rede tem 1\,134\,890 vértices, grau médio $\approx 5{,}3$, caminho médio $\approx 5{,}4$ e diâmetro 24, com clusterização média 0,081 muito acima da de um grafo aleatório equivalente, o que caracteriza o efeito \emph{small-world}. A distribuição de graus tem cauda pesada ($\gamma\approx 2{,}1$ por máxima verossimilhança). A rede resiste bem à remoção aleatória de 5\% dos vértices (maior componente com 91\% dos vértices), mas é muito vulnerável a ataques direcionados (29\% e 25\% para grau e PageRank).
