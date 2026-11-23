@@ -43,6 +43,7 @@ parte3/       Parte III
   potencia/     Apêndice B  (python -m parte3.potencia)
   robustez/     Apêndice C  (python -m parte3.robustez)
   modelos/      extra: ER, BA e WS simulados (python -m parte3.modelos)
+  descoberta/   k-cores, assortatividade e nulo com os mesmos graus (python -m parte3.descoberta)
 relatorio/    relatorio.tex, refs.bib, webmedia.cls
 dados/        bruto e cache baixados/gerados automaticamente (ignorados pelo git);
               arestas_tratadas.csv.gz é a lista tratada, versionada
@@ -88,6 +89,8 @@ python -m parte3.smallworld                     # Parte III.1
 python -m parte3.potencia                       # Parte III.2
 python -m parte3.robustez --reps 30             # Parte III.3 (demorado)
 python -m parte3.modelos                        # modelos clássicos simulados (extra)
+python -m parte3.descoberta                     # descoberta própria: k-cores e nulo de graus
+python -m parte3.descoberta.validacao           # k-core e assortatividade contra o NetworkX
 python -m comum.exportar                        # exporta dados/arestas_tratadas.csv.gz
 ```
 
@@ -125,7 +128,7 @@ cd relatorio && pdflatex relatorio && bibtex relatorio && pdflatex relatorio && 
 | **Parte III.B** — lei de potência | `parte3/potencia/` |
 | **Parte III.C** — robustez (aleatória × direcionada) | `parte3/robustez/` |
 | Modelos clássicos (extra), por simulação | `parte3/modelos/` (geradores BA e WS próprios; ER em `parte3/smallworld/grafo_aleatorio.py`) |
-| Descoberta mais interessante | `relatorio.tex`, Parte III |
+| Descoberta mais interessante (análise própria) | `parte3/descoberta/` (k-core, assortatividade, configuration model) |
 | Metodologia e discussão crítica | `relatorio.tex`, seções "Metodologia" e "Discussão Crítica" |
 
 ## Onde mexer

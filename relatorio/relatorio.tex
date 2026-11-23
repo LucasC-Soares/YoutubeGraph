@@ -96,7 +96,7 @@ Vértices, arestas, clusterização e triângulos coincidem, o que valida a leit
 \label{sec:dados}
 \paragraph{Origem e licença.} Os dados são públicos e foram obtidos diretamente do SNAP (arquivo \texttt{com-youtube.ungraph.txt.gz}). Os identificadores dos usuários já são anonimizados na origem e nenhuma tentativa de reidentificação foi feita.
 
-\paragraph{Limpeza.} O tratamento foi feito de forma automática e reprodutível: (1) cFUomentários do cabeçalho ignorados; (2) laços (arestas $u=u$) removidos; (3) arestas duplicadas e em sentidos opostos unificadas, tratando o grafo como simples e não direcionado; (4) identificadores originais, não contíguos, mapeados para $0,\dots,n-1$ (o mapeamento é preservado: a lista tratada, com os identificadores originais, é exportada em \texttt{dados/arestas\_tratadas.csv.gz}); (5) armazenamento em lista de adjacência compacta (CSR). O arquivo tinha 2\,987\,624 linhas; nenhum laço e nenhuma aresta duplicada foi encontrado, resultando em 1\,134\,890 vértices e 2\,987\,624 arestas. Nenhuma aresta ou vértice válido foi descartado ou alterado.
+\paragraph{Limpeza.} O tratamento foi feito de forma automática e reprodutível: (1) comentários do cabeçalho ignorados; (2) laços (arestas $u=u$) removidos; (3) arestas duplicadas e em sentidos opostos unificadas, tratando o grafo como simples e não direcionado; (4) identificadores originais, não contíguos, mapeados para $0,\dots,n-1$ (o mapeamento é preservado: a lista tratada, com os identificadores originais, é exportada em \texttt{dados/arestas\_tratadas.csv.gz}); (5) armazenamento em lista de adjacência compacta (CSR). O arquivo tinha 2\,987\,624 linhas; nenhum laço e nenhuma aresta duplicada foi encontrado, resultando em 1\,134\,890 vértices e 2\,987\,624 arestas. Nenhuma aresta ou vértice válido foi descartado ou alterado.
 
 \paragraph{Reprodutibilidade e ferramentas.} Sementes aleatórias fixas (\texttt{GRAPH\_}\allowbreak\texttt{SEED}=42) garantem reprodutibilidade. Python com NumPy, NetworkX \cite{hagberg2008} (visualização e validação cruzada) e, opcionalmente, igraph \cite{igraph} (contagem exata de triângulos). Os algoritmos da Parte~II e as medidas de \emph{small-world} foram implementados do zero e validados contra o NetworkX em subgrafos (todas as comparações concordaram). 
 Os scripts e resultados obtidos estão disponíveis no repositório
@@ -146,6 +146,8 @@ Verifica-se se $P(k)\sim k^{-\gamma}$ com $\gamma>1$ por (i) gráficos log-log d
 
 \paragraph{Robustez.}
 Seguindo o apêndice do enunciado, trabalha-se na maior componente conexa, com $r=\lceil 0{,}05\,n\rceil$ vértices removidos. As métricas são: (A) fração $S$ do grafo original na maior componente; (B) número de componentes; (C) caminho médio e limite inferior do diâmetro (BFS amostradas); (D) fração de nós isolados. Na remoção aleatória foram feitas $T=30$ repetições (média $\pm$ desvio, boxplots). No ataque direcionado, são removidos os $r$ vértices de maior centralidade de grau e de PageRank (ranking fixo, calculado uma vez). A betweenness exata é inviável neste porte, e o enunciado admite grau como alternativa.
+
+\paragraph{Descoberta própria.} Duas análises. (i) \emph{Modelo nulo}: um \emph{configuration model} com a mesma sequência de graus do grafo real (as pontas das arestas são emparelhadas ao acaso, e laços e arestas múltiplas são apagados), medido com o mesmo código de $C$ e $L$ do teste de \emph{small-world} e comparado também na assortatividade de grau (correlação de Pearson entre os graus das duas pontas de cada aresta). (ii) \emph{Decomposição em $k$-cores}, com implementação própria em $O(n+m)$ (Batagelj--Zaversnik) validada contra o NetworkX, para posicionar os \emph{hubs}: tamanho do núcleo máximo, grau médio por \emph{coreness} e quantos dos 100 maiores graus pertencem ao núcleo máximo.
 
 \paragraph{Modelos clássicos.} Para comparar por simulação com Erdős--Rényi, Barabási--Albert e Watts--Strogatz, foram gerados grafos com o mesmo número de vértices do real, por código próprio: $G(n,m)$ com o mesmo $m$; Barabási--Albert \cite{barabasi1999} por ligação preferencial, em que cada novo vértice se liga a 2 ou 3 vértices distintos (3 com probabilidade 0,63), de modo que o grau médio coincida com o do real; e Watts--Strogatz \cite{watts1998} com $k=6$ vizinhos e probabilidade de religação $p=0{,}1$. Todos foram medidos com o mesmo código do teste de \emph{small-world} (clusterização em amostra de 20\,000 vértices e caminho médio por 300 BFS) e comparados quanto a grau médio e máximo, $C$, $L$, diâmetro (limite inferior), $\gamma$ por MLE e CCDF do grau.
 
@@ -271,9 +273,31 @@ A Tabela~\ref{tab:rob} e a Figura~\ref{fig:rob} resumem os cenários. Foram remo
 \end{figure*}
 
 \subsection{Descoberta mais interessante}
-O mais interessante é que uma mesma propriedade explica a força e a fragilidade da rede. Os \emph{hubs} (cauda com $\gamma\approx2{,}1$) mantêm o caminho médio em 5,3 saltos, menor que o de um grafo aleatório equivalente (8,6), e o diâmetro em 24 mesmo com 1,1 milhão de vértices. Mas é por eles que tudo passa: remover só 5\% dos vértices por grau deixa apenas 29\% do grafo conectado, enquanto 5\% aleatórios deixam 91\%.
+A pergunta é se a clusterização alta é consequência apenas dos graus (\emph{hubs}) ou se há estrutura adicional. A Tabela~\ref{tab:nulo} compara o grafo real com o nulo de mesma sequência de graus, e a Tabela~\ref{tab:nucleo} e a Figura~\ref{fig:nucleo} mostram o perfil de $k$-cores.
 
-Há ainda um efeito de composição: mais da metade dos usuários tem um único amigo e pendura-se em algum \emph{hub}. Por isso a remoção aleatória isola quase exatamente a fração prevista (2,7\%), enquanto o ataque aos poucos vértices centrais isola 43\% de uma vez.
+\begin{table}
+  \caption{Grafo real e modelo nulo com a mesma sequência de graus.}
+  \label{tab:nulo}
+  \small
+  \tabela{../parte3/resultados/tab_nulo.tex}{python -m parte3.descoberta}
+\end{table}
+
+\begin{table}
+  \caption{Perfil de $k$-cores do grafo real.}
+  \label{tab:nucleo}
+  \small
+  \tabela{../parte3/resultados/tab_nucleo.tex}{python -m parte3.descoberta}
+\end{table}
+
+\begin{figure}[h]
+  \centering
+  \IfFileExists{../parte3/resultados/fig/nucleo.pdf}{\includegraphics[width=\linewidth]{../parte3/resultados/fig/nucleo.pdf}}{\TODO{figura nucleo.pdf}}
+  \caption{(a) Fração de vértices em cada $k$-core. (b) Grau médio por \emph{coreness}.}
+  \Description{Dois gráficos: a fração de vértices no k-core decresce com k, e o grau médio cresce com a coreness.}
+  \label{fig:nucleo}
+\end{figure}
+
+O nulo, com exatamente os mesmos graus mas ligações ao acaso, tem $C\approx0{,}007$, cerca de 9\% do valor real (0,08), e caminho médio menor ($\approx4{,}4$ contra 5,3). Portanto, os \emph{hubs} e a distribuição de graus, sozinhos, explicam apenas uma fração pequena da clusterização: o grafo real tem mais de dez vezes os triângulos esperados, o que indica estrutura local adicional, como comunidades (o SNAP distribui comunidades de \emph{ground-truth}, que não foram usadas aqui). O caminho médio maior que o do nulo é compatível com isso: ligações concentradas localmente deixam menos arestas para atalhos entre regiões distantes. \TODO{Interpretar a assortatividade $r$ e o perfil de $k$-cores após rodar \texttt{python -m parte3.descoberta}: se os maiores \emph{hubs} estão no núcleo máximo, a degenerescência e a fração de vértices de \emph{coreness} 1.}
 
 \subsection{Aproximação a modelos clássicos}
 A Tabela~\ref{tab:modelos} e a Figura~\ref{fig:modelos} comparam o grafo real com os três modelos simulados. Para os modelos de grau concentrado (Erdős--Rényi e Watts--Strogatz), o $\gamma$ do MLE não tem significado como lei de potência (cauda curta, $\gamma\gg3$) e é mostrado apenas por completude.
@@ -325,6 +349,8 @@ Esta seção separa o que os resultados indicam (Seção~\ref{sec:interpretacao}
 \paragraph{Robustez.} (i) As métricas de distância usam apenas 20 BFS; o caminho médio (5,19) e o diâmetro ($\ge17$) do grafo original são, portanto, estimativas mais ruidosas que as da Parte~I (5,36 e 24) e do teste de \emph{small-world} (5,34), e podem ser refinadas com mais BFS. (ii) O ataque usa ranking \emph{fixo}, calculado uma vez; um ataque adaptativo, que recalcula a centralidade a cada remoção, tende a ser mais danoso, e a betweenness não foi usada por ser inviável neste porte. (iii) O caminho médio de $\approx22$ após os ataques refere-se à maior componente remanescente, que tem apenas 25--30\% do grafo original.
 
 \paragraph{Modelos clássicos.} (i) Foi gerada uma única realização de cada modelo, e a clusterização de ER e BA, por ser muito baixa e estimada em amostra, tem incerteza alta e vale como ordem de grandeza. (ii) O Watts--Strogatz usa $k=6$ (grau médio 6,0 contra 5,27 no real, cerca de 14\% mais arestas) e $p=0{,}1$ fixo, sem ajuste a partir dos dados. (iii) A escolha de 2 ou 3 ligações por vértice no Barabási--Albert, para casar o grau médio, é uma decisão nossa. (iv) Não foram testados modelos com fechamento de triângulos, que seriam os candidatos naturais.
+
+\paragraph{Descoberta própria.} (i) O nulo é um \emph{configuration model} de uma única realização, e apagar laços e arestas múltiplas remove cerca de 0,8\% das arestas, o que reduz sobretudo o grau dos maiores \emph{hubs} (o grau máximo do nulo fica cerca de 20\% abaixo do real); isso afeta pouco $C$ e $L$, mas não é uma preservação exata dos graus. (ii) $C$ e $L$ do real e do nulo são estimados em amostras, com IC95\%. (iii) O nulo preserva só os graus; a explicação por comunidades é uma hipótese compatível com o excesso de triângulos, não foi testada, pois as comunidades do SNAP não foram usadas.
 
 %% =====================================================================
 \section{Conclusão}
