@@ -1,4 +1,5 @@
-numpy
-matplotlib
-networkx
-python-igraph  # opcional
+# Versões usadas no desenvolvimento e na validação (Python 3.13)
+numpy==2.5.3
+matplotlib==3.11.2
+networkx==3.7        # só visualização (Parte I) e validação cruzada (parte2.validacao)
+python-igraph        # opcional: clusterização/triângulos exatos na Parte I (registrar a versão com `pip freeze`)
