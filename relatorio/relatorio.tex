@@ -147,6 +147,8 @@ Verifica-se se $P(k)\sim k^{-\gamma}$ com $\gamma>1$ por (i) gráficos log-log d
 \paragraph{Robustez.}
 Seguindo o apêndice do enunciado, trabalha-se na maior componente conexa, com $r=\lceil 0{,}05\,n\rceil$ vértices removidos. As métricas são: (A) fração $S$ do grafo original na maior componente; (B) número de componentes; (C) caminho médio e limite inferior do diâmetro (BFS amostradas); (D) fração de nós isolados. Na remoção aleatória foram feitas $T=30$ repetições (média $\pm$ desvio, boxplots). No ataque direcionado, são removidos os $r$ vértices de maior centralidade de grau e de PageRank (ranking fixo, calculado uma vez). A betweenness exata é inviável neste porte, e o enunciado admite grau como alternativa.
 
+\paragraph{Modelos clássicos.} Para comparar por simulação com Erdős--Rényi, Barabási--Albert e Watts--Strogatz, foram gerados grafos com o mesmo número de vértices do real, por código próprio: $G(n,m)$ com o mesmo $m$; Barabási--Albert \cite{barabasi1999} por ligação preferencial, em que cada novo vértice se liga a 2 ou 3 vértices distintos (3 com probabilidade 0,63), de modo que o grau médio coincida com o do real; e Watts--Strogatz \cite{watts1998} com $k=6$ vizinhos e probabilidade de religação $p=0{,}1$. Todos foram medidos com o mesmo código do teste de \emph{small-world} (clusterização em amostra de 20\,000 vértices e caminho médio por 300 BFS) e comparados quanto a grau médio e máximo, $C$, $L$, diâmetro (limite inferior), $\gamma$ por MLE e CCDF do grau.
+
 %% =====================================================================
 \section{Parte I - Análise Estrutural}
 \label{sec:parte1}
@@ -274,7 +276,22 @@ O mais interessante é que uma mesma propriedade explica a força e a fragilidad
 Há ainda um efeito de composição: mais da metade dos usuários tem um único amigo e pendura-se em algum \emph{hub}. Por isso a remoção aleatória isola quase exatamente a fração prevista (2,7\%), enquanto o ataque aos poucos vértices centrais isola 43\% de uma vez.
 
 \subsection{Aproximação a modelos clássicos}
-\emph{Erdős--Rényi}: com o mesmo grau médio, o grau seguiria uma Poisson de média 5,3, sem vértices de grau na casa de milhares, e $C\approx4{,}6\times10^{-6}$; o grafo real tem grau máximo 28\,754 e $C=0{,}081$, logo não se aproxima de ER. \emph{Watts--Strogatz}: reproduz $C$ alto e $L$ baixo, mas com graus homogêneos, o que contradiz a cauda pesada observada. \emph{Barabási--Albert} \cite{barabasi1999}: gera cauda de lei de potência e $L$ curto, mas com $\gamma=3$ e $C$ muito baixo; a rede real tem $\gamma\approx2{,}1$--$2{,}4$ e $C$ bem maior. O modelo mais próximo é, portanto, o de ligação preferencial, mas seria preciso um mecanismo adicional de fechamento de triângulos para explicar a clusterização.
+A Tabela~\ref{tab:modelos} e a Figura~\ref{fig:modelos} comparam o grafo real com os três modelos simulados. Para os modelos de grau concentrado (Erdős--Rényi e Watts--Strogatz), o $\gamma$ do MLE não tem significado como lei de potência (cauda curta, $\gamma\gg3$) e é mostrado apenas por completude.
+
+\begin{table}
+  \caption{Grafo real e modelos clássicos simulados (mesmo $n$).}
+  \label{tab:modelos}
+  \small
+  \tabela{../parte3/resultados/tab_modelos.tex}{python -m parte3.modelos}
+\end{table}
+
+\begin{figure}[h]
+  \centering
+  \IfFileExists{../parte3/resultados/fig/modelos.pdf}{\includegraphics[width=0.85\linewidth]{../parte3/resultados/fig/modelos.pdf}}{\TODO{figura modelos.pdf}}
+  \caption{CCDF do grau (log-log) do grafo real e dos modelos clássicos.}
+  \Description{Curvas da CCDF do grau: o grafo real e o modelo de Barabási--Albert têm cauda pesada; Erdős--Rényi e Watts--Strogatz caem abruptamente em graus pequenos.}
+  \label{fig:modelos}
+\end{figure}
 
 %% =====================================================================
 \section{Discussão Crítica}
@@ -293,6 +310,8 @@ Esta seção separa o que os resultados indicam (Seção~\ref{sec:interpretacao}
 
 \paragraph{Robustez.} Os 2,7\% de vértices isolados na remoção aleatória são coerentes com a estrutura: 53,1\% dos vértices têm grau 1 e, com 5\% de remoção, cerca de $0{,}531\times0{,}05\approx2{,}7\%$ perdem seu único vizinho. Como $S_{rand}\gg S_{cent}$ e $c_{cent}\gg c_{rand}$, a rede é \textbf{robusta a falhas aleatórias e vulnerável a ataques direcionados}, padrão típico de redes com \emph{hubs}. O PageRank causa dano um pouco maior que o grau.
 
+\paragraph{Modelos clássicos.} O Erdős--Rényi tem grau de Poisson (grau máximo 20, contra 28\,754 no real) e $C\sim10^{-6}$, de modo que não reproduz nem os \emph{hubs} nem o agrupamento. O Watts--Strogatz reproduz um $C$ alto (0,44, até maior que o real, 0,08), mas com graus homogêneos (máximo 11) e caminhos longos ($L\approx13{,}7$ contra 5,34), logo explica o agrupamento, mas não os \emph{hubs} nem os caminhos curtos. O Barabási--Albert é o mais próximo: tem cauda de lei de potência ($\gamma\approx2{,}9$, próximo do valor teórico 3) e caminho curto ($L\approx6{,}0$). Ainda assim, seu grau máximo ($\approx3\times10^{3}$) é cerca de dez vezes menor que o real, seu $\gamma$ é maior (2,9 contra 2,14; $\gamma$ menor significa \emph{hubs} mais extremos, compatível com o caminho médio ainda mais curto do real) e seu $C$ ($\sim10^{-4}$) é centenas de vezes menor que 0,08. Nenhum modelo reproduz simultaneamente \emph{hubs} extremos e agrupamento alto, o que indica que a rede real combina ligação preferencial com um mecanismo de fechamento de triângulos ou de formação de comunidades.
+
 \subsection{Limitações}
 \label{sec:limitacoes}
 \paragraph{Dados e Parte I.} (i) O SNAP distribui apenas a maior componente conexa; a componente única e a ausência de vértices isolados são consequência desse recorte, e não uma propriedade da rede completa do YouTube. Todas as conclusões de conectividade e de robustez valem para essa componente. (ii) A única medida de caminhos estimada é o caminho médio ($\pm0{,}12$); as demais medidas numéricas da Tabela~\ref{tab:estrutural} são exatas. (iii) A visualização mostra apenas 200 vértices em torno do maior \emph{hub} e serve para ilustrar a estrutura de \emph{hubs}, não para inferir propriedades do grafo inteiro.
@@ -304,6 +323,8 @@ Esta seção separa o que os resultados indicam (Seção~\ref{sec:interpretacao}
 \paragraph{Lei de potência.} O erro-padrão do MLE (0,003) mede apenas a incerteza estatística condicionada ao modelo e ao $k_{min}$ escolhido, não a adequação da lei de potência. Como não foram feitos o teste de bondade de ajuste por \emph{bootstrap} nem a comparação com outras distribuições de cauda pesada, o resultado é um indício compatível com lei de potência, não uma prova. Os 90\% de vértices abaixo de $k_{min}$ (inclusive os 53\% de grau 1) não seguem necessariamente a lei.
 
 \paragraph{Robustez.} (i) As métricas de distância usam apenas 20 BFS; o caminho médio (5,19) e o diâmetro ($\ge17$) do grafo original são, portanto, estimativas mais ruidosas que as da Parte~I (5,36 e 24) e do teste de \emph{small-world} (5,34), e podem ser refinadas com mais BFS. (ii) O ataque usa ranking \emph{fixo}, calculado uma vez; um ataque adaptativo, que recalcula a centralidade a cada remoção, tende a ser mais danoso, e a betweenness não foi usada por ser inviável neste porte. (iii) O caminho médio de $\approx22$ após os ataques refere-se à maior componente remanescente, que tem apenas 25--30\% do grafo original.
+
+\paragraph{Modelos clássicos.} (i) Foi gerada uma única realização de cada modelo, e a clusterização de ER e BA, por ser muito baixa e estimada em amostra, tem incerteza alta e vale como ordem de grandeza. (ii) O Watts--Strogatz usa $k=6$ (grau médio 6,0 contra 5,27 no real, cerca de 14\% mais arestas) e $p=0{,}1$ fixo, sem ajuste a partir dos dados. (iii) A escolha de 2 ou 3 ligações por vértice no Barabási--Albert, para casar o grau médio, é uma decisão nossa. (iv) Não foram testados modelos com fechamento de triângulos, que seriam os candidatos naturais.
 
 %% =====================================================================
 \section{Conclusão}

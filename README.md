@@ -42,6 +42,7 @@ parte3/       Parte III
   smallworld/   Apêndice A  (python -m parte3.smallworld)
   potencia/     Apêndice B  (python -m parte3.potencia)
   robustez/     Apêndice C  (python -m parte3.robustez)
+  modelos/      extra: ER, BA e WS simulados (python -m parte3.modelos)
 relatorio/    relatorio.tex, refs.bib, webmedia.cls
 dados/        bruto e cache baixados/gerados automaticamente (ignorados pelo git);
               arestas_tratadas.csv.gz é a lista tratada, versionada
@@ -86,6 +87,7 @@ python -m parte2 --rep 30 --completo            # Parte II (demorado; --completo
 python -m parte3.smallworld                     # Parte III.1
 python -m parte3.potencia                       # Parte III.2
 python -m parte3.robustez --reps 30             # Parte III.3 (demorado)
+python -m parte3.modelos                        # modelos clássicos simulados (extra)
 python -m comum.exportar                        # exporta dados/arestas_tratadas.csv.gz
 ```
 
@@ -122,7 +124,8 @@ cd relatorio && pdflatex relatorio && bibtex relatorio && pdflatex relatorio && 
 | **Parte III.A** — small-world (sem biblioteca pronta) | `parte3/smallworld/` |
 | **Parte III.B** — lei de potência | `parte3/potencia/` |
 | **Parte III.C** — robustez (aleatória × direcionada) | `parte3/robustez/` |
-| Descoberta mais interessante; modelos clássicos | `relatorio.tex`, Parte III |
+| Modelos clássicos (extra), por simulação | `parte3/modelos/` (geradores BA e WS próprios; ER em `parte3/smallworld/grafo_aleatorio.py`) |
+| Descoberta mais interessante | `relatorio.tex`, Parte III |
 | Metodologia e discussão crítica | `relatorio.tex`, seções "Metodologia" e "Discussão Crítica" |
 
 ## Onde mexer
