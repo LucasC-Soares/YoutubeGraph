@@ -43,11 +43,26 @@ parte3/       Parte III
   potencia/     Apêndice B  (python -m parte3.potencia)
   robustez/     Apêndice C  (python -m parte3.robustez)
 relatorio/    relatorio.tex, refs.bib, webmedia.cls
-dados/        baixado automaticamente do SNAP (ignorado pelo git)
+dados/        bruto e cache baixados/gerados automaticamente (ignorados pelo git);
+              arestas_tratadas.csv.gz é a lista tratada, versionada
 ```
 
 Cada `parteN/` grava em `parteN/resultados/` (JSON, tabelas `.tex`, `fig/*.pdf`);
 o `relatorio.tex` inclui esses arquivos por `../parteN/resultados/...`.
+
+## Dado tratado
+
+`dados/arestas_tratadas.csv.gz` é a lista de arestas após a limpeza (sem laços, sem duplicatas,
+uma linha por aresta com `u < v`), em CSV com cabeçalho `u,v` e os **IDs originais do SNAP**.
+O vértice de índice `i` usado no código (0..n-1) é o `i`-ésimo menor ID original. Para ler:
+
+```python
+import numpy as np
+arestas = np.loadtxt("dados/arestas_tratadas.csv.gz", delimiter=",", skiprows=1, dtype=np.int64)
+```
+
+O bruto (`com-youtube.ungraph.txt.gz`) e o cache binário (`grafo_csr.npz`, ~42 MB) são
+regenerados automaticamente e **não** são versionados (ver `.gitignore`).
 
 ## Requisitos e instalação
 
@@ -71,6 +86,7 @@ python -m parte2 --rep 30 --completo            # Parte II (demorado; --completo
 python -m parte3.smallworld                     # Parte III.1
 python -m parte3.potencia                       # Parte III.2
 python -m parte3.robustez --reps 30             # Parte III.3 (demorado)
+python -m comum.exportar                        # exporta dados/arestas_tratadas.csv.gz
 ```
 
 Compilação do relatório (precisa de `ACM-Reference-Format.bst`):
@@ -88,7 +104,7 @@ cd relatorio && pdflatex relatorio && bibtex relatorio && pdflatex relatorio && 
 | Requisito | Onde está |
 |-----------|-----------|
 | Determinação do grafo (matrícula) | este README; `relatorio.tex`, seção "Descrição do Grafo Original" |
-| Tratamento dos dados | `comum/dados.py`; relatório, subseção "Responsabilidade pelo Tratamento dos Dados" |
+| Tratamento dos dados | `comum/dados.py`, `comum/exportar.py` (dado tratado); relatório, subseção "Responsabilidade pelo Tratamento dos Dados" |
 | **Parte I** — vértices, arestas, graus, densidade | `parte1/basicas.py` |
 | Distribuição de graus (CSV + figura) | `parte1/grafico_graus.py` → `parte1/resultados/distribuicao_graus.csv`, `fig/graus.pdf` |
 | Componentes conexas e tamanhos | `parte1/componentes.py`, `comum/caminhos.py` |
