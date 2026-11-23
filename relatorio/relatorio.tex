@@ -50,7 +50,7 @@ Redes sociais \emph{online} apresentam estrutura não trivial, com poucos vérti
 
 A contribuição deste trabalho é um estudo reprodutível em três partes: (I) medidas estruturais exatas ou estimadas, com indicação explícita do que foi aproximado; (II) implementações próprias de algoritmos clássicos de grafos, com comparação entre complexidade teórica e tempo observado; e (III) testes de \emph{small-world}, de lei de potência e de robustez.
 
-O texto segue esta ordem: a Seção~\ref{sec:grafo} descreve o grafo original, incluindo a sua determinação e o tratamento dos dados; a Seção~\ref{sec:metodologia} apresenta a metodologia de todas as partes; as Seções~\ref{sec:parte1} a~\ref{sec:parte3} trazem os resultados das Partes~I a~III; a Seção~\ref{sec:discussao} faz a discussão crítica; e a Seção~\ref{sec:conclusao} conclui.
+O texto segue esta ordem: a Seção~\ref{sec:grafo} descreve o grafo original, incluindo a sua determinação, a descrição do conjunto de dados e o tratamento dos dados; a Seção~\ref{sec:metodologia} apresenta a metodologia de todas as partes; as Seções~\ref{sec:parte1} a~\ref{sec:parte3} trazem os resultados das Partes~I a~III; a Seção~\ref{sec:discussao} faz a discussão crítica; e a Seção~\ref{sec:conclusao} conclui.
 
 %% =====================================================================
 \section{Descrição do Grafo Original}
@@ -64,7 +64,31 @@ O grafo a ser analisado por cada aluno é determinado a partir do número de mat
 \end{equation}
 em que $S(M)$ é a soma dos dígitos de $M$ e $U(M)$ é o número formado pelos dois últimos dígitos de $M$. Para a matrícula $224215940$ tem-se $S=2+2+4+2+1+5+9+4+0=29$ e $U=40$, logo $g=(29\cdot 41)\bmod 129=1189\bmod 129=28$. O índice 28 corresponde ao grafo \href{https://snap.stanford.edu/data/com-Youtube.html}{\texttt{com-Youtube}}, analisado neste trabalho.
 
-O conjunto de dados \texttt{com-Youtube} é uma rede de amizades não direcionada e não ponderada; o SNAP disponibiliza apenas a maior componente conexa \cite{snapnets}. Segundo a página do conjunto, a rede possui 1\,134\,890 vértices e 2\,987\,624 arestas. Os valores efetivamente obtidos após o tratamento dos dados estão na Tabela~\ref{tab:estrutural}.
+\subsection{O Conjunto de Dados \texttt{com-Youtube}}
+\label{sec:conjunto}
+O \texttt{com-Youtube} é a rede social do YouTube, um serviço de compartilhamento de vídeos que inclui uma rede social: cada vértice é um usuário e cada aresta é uma relação de amizade, de modo que o grafo é não direcionado e não ponderado. Os dados foram fornecidos por Mislove et al.\ \cite{mislove2007} e são distribuídos pelo SNAP \cite{snapnets,yang2015defining}. Além do grafo, o SNAP disponibiliza 8\,385 comunidades de \emph{ground-truth}, definidas a partir dos grupos criados pelos usuários (cada componente conexa de um grupo é uma comunidade e as com menos de 3 vértices são removidas); elas não foram usadas, pois este trabalho analisa apenas a estrutura do grafo.
+
+Quanto ao recorte, o SNAP distribui \textbf{apenas a maior componente conexa}. Por isso o grafo tem uma única componente, com 100\% dos vértices e das arestas, e propriedades como número de componentes ou de vértices isolados não descrevem a rede completa do YouTube. A Tabela~\ref{tab:snap} compara as estatísticas publicadas pelo SNAP com as obtidas neste trabalho.
+
+\begin{table}
+  \caption{Estatísticas publicadas pelo SNAP e valores obtidos neste trabalho.}
+  \label{tab:snap}
+  \small
+  \begin{tabular}{lrr}
+    \toprule
+    Medida & SNAP & Obtido \\
+    \midrule
+    Vértices & 1\,134\,890 & 1\,134\,890 \\
+    Arestas & 2\,987\,624 & 2\,987\,624 \\
+    Clusterização média & 0,0808 & 0,0808 \\
+    Triângulos & 3\,056\,386 & 3\,056\,386 \\
+    Diâmetro & 20 & 24 \\
+    Diâmetro efetivo (90\%) & 6,5 & não calculado \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Vértices, arestas, clusterização e triângulos coincidem, o que valida a leitura e a limpeza dos dados e o cálculo de triângulos. O diâmetro difere: o SNAP informa 20 (a página não detalha o método), enquanto encontramos 24 por BFS. Como o valor 24 foi observado entre um par real de vértices, o diâmetro do grafo é pelo menos 24, e o valor de 20 do SNAP subestima o diâmetro, o que é compatível com uma estimativa por amostragem. O diâmetro efetivo (90-percentil das distâncias) não foi calculado; o caminho médio estimado (5,36) é coerente com o valor 6,5 do SNAP, já que o percentil 90 das distâncias é maior que a média.
 
 \subsection{Responsabilidade pelo Tratamento dos Dados}
 \label{sec:dados}
@@ -105,7 +129,7 @@ Como a implementação é própria, a clusterização foi estimada em uma amostr
 Verifica-se se $P(k)\sim k^{-\gamma}$ com $\gamma>1$ por (i) gráficos log-log de $P(k)$ e da CCDF, (ii) regressão linear de $\log P(K\ge k)\times\log k$ e (iii) estimador de máxima verossimilhança de $\gamma$ com $k_{min}$ escolhido por mínima distância de Kolmogorov--Smirnov \cite{clauset2009}. Utiliza-se a aproximação contínua com correção de $1/2$ para dados discretos; \textbf{não} foi realizado o teste de bondade de ajuste por \emph{bootstrap} nem a comparação com outras distribuições de cauda pesada, o que limita a conclusão a \emph{indícios}.
 
 \paragraph{Robustez.}
-Seguindo o apêndice da descrição do trabalho, trabalha-se na maior componente conexa, com $r=\lceil 0{,}05\,n\rceil$ vértices removidos. As métricas são: (A) fração $S$ do grafo original na maior componente; (B) número de componentes; (C) caminho médio e limite inferior do diâmetro (BFS amostradas); (D) fração de nós isolados. Na remoção aleatória foram feitas $T=30$ repetições (média $\pm$ desvio, boxplots). No ataque direcionado, são removidos os $r$ vértices de maior centralidade de grau e de PageRank (ranking fixo, calculado uma vez). A betweenness exata é inviável neste porte, e o enunciado admite grau como alternativa.
+Seguindo o apêndice do enunciado, trabalha-se na maior componente conexa, com $r=\lceil 0{,}05\,n\rceil$ vértices removidos. As métricas são: (A) fração $S$ do grafo original na maior componente; (B) número de componentes; (C) caminho médio e limite inferior do diâmetro (BFS amostradas); (D) fração de nós isolados. Na remoção aleatória foram feitas $T=30$ repetições (média $\pm$ desvio, boxplots). No ataque direcionado, são removidos os $r$ vértices de maior centralidade de grau e de PageRank (ranking fixo, calculado uma vez). A betweenness exata é inviável neste porte, e o enunciado admite grau como alternativa.
 
 %% =====================================================================
 \section{Parte I - Análise Estrutural}
