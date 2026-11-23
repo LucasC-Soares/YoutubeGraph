@@ -1,1 +1,4 @@
 __pycache__/
+
+dados/*
+!dados/arestas_tratadas.csv.gz
